@@ -8,11 +8,32 @@ import (
 	"net/http/cookiejar"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/alexedwards/scs/v2"
+	"github.com/ghernandez345/snippetbox/internal/models/mocks"
+	"github.com/go-playground/form/v4"
 )
 
 func newTestApplication(t *testing.T) *application {
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	formDecoder := form.NewDecoder()
+
+	sesssionManager := scs.New()
+	sesssionManager.Lifetime = 12 * time.Hour
+	sesssionManager.Cookie.Secure = true
+
 	return &application{
-		logger: slog.New(slog.NewTextHandler(io.Discard, nil)),
+		logger:         slog.New(slog.NewTextHandler(io.Discard, nil)),
+		snippets:       &mocks.SnippetModel{},
+		users:          &mocks.UserModel{},
+		templateCache:  templateCache,
+		formDecoder:    formDecoder,
+		sessionManager: sesssionManager,
 	}
 }
 
