@@ -20,6 +20,7 @@ import (
 
 type application struct {
 	logger         *slog.Logger
+	debug          bool
 	snippets       models.SnippetModelInterface
 	users          models.UserModelInterface
 	templateCache  map[string]*template.Template
@@ -30,6 +31,7 @@ type application struct {
 func main() {
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "web:pass@/snippetbox?parseTime=true", "MySQL data source name")
+	debug := flag.Bool("debug", false, "Enable debug mode")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -56,6 +58,7 @@ func main() {
 
 	app := &application{
 		logger:         logger,
+		debug:          *debug,
 		snippets:       &models.SnippetModel{DB: db},
 		users:          &models.UserModel{DB: db},
 		templateCache:  templateCache,
